@@ -1,0 +1,11 @@
+__pycache__/
+.idea/
+*.pyc
+*.cue
+*.wav
+*.flac
+*.ape
+*.mp3
+*.ogg
+*.wv
+*.opus
