@@ -9,3 +9,4 @@ __pycache__/
 *.ogg
 *.wv
 *.opus
+cue2report.py
