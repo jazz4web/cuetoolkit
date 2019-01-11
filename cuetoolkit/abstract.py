@@ -11,7 +11,8 @@ from .exc import FileError, InvalidCueError, ReqAppError
 
 
 class Checker:
-    def _check_dep(self, dependency):
+    @staticmethod
+    def _check_dep(dependency):
         for path in os.getenv('PATH').split(':'):
             dep_bin = os.path.join(path, dependency)
             if os.path.exists(dep_bin):
@@ -31,6 +32,61 @@ class Decoder(Checker):
             app = apps.get(os.path.splitext(media)[1])
             if app and not self._check_dep(app):
                 raise ReqAppError('{} is not installed'. format(app))
+
+
+class HashCounter:
+    @staticmethod
+    def _count_hash(media):
+        cmd = shlex.split('shnhash "{}"'.format(media))
+        with Popen(cmd, stdout=PIPE) as p:
+            result = p.communicate()
+        if p.returncode:
+            raise RuntimeError('media file is not valid')
+        return result[0].decode('utf-8').split()[0]
+
+
+class LengthConverter:
+    @staticmethod
+    def _convert_to_string(length):
+        m, s = int(length) // 60, int(length) % 60
+        n = int(round(length - int(length), 1) * 10)
+        if n > 9:
+            s += 1
+            n = 0
+            if s > 59:
+                m += 1
+                s = 0
+        return '{:0{w}d}:{:0{w}d}.{}'.format(m, s, n, w=2)
+
+
+class TLConverter:
+    @staticmethod
+    def _convert_to_number(time_line):
+        mm, ss, ff = re.split(r'[:.]', time_line)
+        if int(ss) > 59 or int(ff) > 74:
+            raise InvalidCueError('this cuesheet has an invalid timestamp')
+        ss = int(mm) * 60 + int(ss)
+        nnn = round(int(ff) / 0.075)
+        if nnn > 999:
+            ss += 1
+            nnn = 0
+        return ss + nnn / 1000
+
+
+class LengthCounter(TLConverter):
+    def _count_length(self, media):
+        if media is None:
+            return None, None
+        cmd = shlex.split('shnlen -ct "{}"'.format(media))
+        with Popen(cmd, stdout=PIPE, stderr=PIPE) as p:
+            result = p.communicate()
+        if p.returncode:
+            raise RuntimeError('media file is not valid')
+        result = result[0].decode('utf-8').split()
+        cdda = result[3]
+        if cdda == '---':
+            cdda = 'CDDA'
+        return self._convert_to_number(result[0]), cdda
 
 
 class Reader(Checker):
@@ -58,13 +114,15 @@ class Reader(Checker):
 
 
 class ContentTool:
-    def _get_value(self, content, pattern):
+    @staticmethod
+    def _get_value(content, pattern):
         for line in content:
             box = pattern.match(line)
             if box:
                 return box.group(1).strip('"')
 
-    def _get_values(self, content, pattern):
+    @staticmethod
+    def _get_values(content, pattern):
         return [pattern.match(line).group(1).strip('"') for line in content
                 if pattern.match(line)]
 
@@ -141,7 +199,8 @@ class PointsData:
             store['01'][1] = None
         return store
 
-    def _convert_time_line(self, line):
+    @staticmethod
+    def _convert_time_line(line):
         if line:
             parts = line.split(':')
             return '{0}:{1}.{2}'.format(int(parts[0]), parts[1], parts[2])

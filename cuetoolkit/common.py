@@ -119,7 +119,8 @@ class Couple:
     def cue_base(self, value):
         raise AttributeError('cue_base cannot be set')
 
-    def _find_cue(self, home, name, source):
+    @staticmethod
+    def _find_cue(home, name, source):
         cue = [os.path.join(home, item) for item in os.listdir(home)
                if os.path.splitext(item) == (name, '.cue')]
         if not cue:
@@ -128,7 +129,8 @@ class Couple:
         # the first is cue, the second is media
         return os.path.realpath(cue[0]), os.path.realpath(source)
 
-    def _find_media(self, home, name, source, medias):
+    @staticmethod
+    def _find_media(home, name, source, medias):
         media = [os.path.join(home, item) for item in os.listdir(home)
                  if os.path.splitext(item)[1].lower() in medias and
                  os.path.splitext(item)[0] == name]
