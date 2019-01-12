@@ -12,7 +12,7 @@ from .exc import FileError, InvalidCueError, ReqAppError
 
 class Checker:
     @staticmethod
-    def _check_dep(dependency):
+    def check_dep(dependency):
         for path in os.getenv('PATH').split(':'):
             dep_bin = os.path.join(path, dependency)
             if os.path.exists(dep_bin):
@@ -23,20 +23,20 @@ class Checker:
 class Decoder(Checker):
     def _check_decoder(self, media):
         if media:
-            if not self._check_dep('shntool'):
+            if not self.check_dep('shntool'):
                 raise ReqAppError('shntool is not installed')
             apps = {'.flac': 'flac',
                     '.ape': 'mac',
                     '.wv': 'wvunpack',
                     '.wav': None}
             app = apps.get(os.path.splitext(media)[1])
-            if app and not self._check_dep(app):
+            if app and not self.check_dep(app):
                 raise ReqAppError('{} is not installed'. format(app))
 
 
 class HashCounter:
     @staticmethod
-    def _count_hash(media):
+    def count_hash(media):
         cmd = shlex.split('shnhash "{}"'.format(media))
         with Popen(cmd, stdout=PIPE) as p:
             result = p.communicate()
@@ -47,7 +47,7 @@ class HashCounter:
 
 class LengthConverter:
     @staticmethod
-    def _convert_to_string(length):
+    def convert_to_string(length):
         m, s = int(length) // 60, int(length) % 60
         n = int(round(length - int(length), 1) * 10)
         if n > 9:
@@ -61,7 +61,7 @@ class LengthConverter:
 
 class TLConverter:
     @staticmethod
-    def _convert_to_number(time_line):
+    def convert_to_number(time_line):
         mm, ss, ff = re.split(r'[:.]', time_line)
         if int(ss) > 59 or int(ff) > 74:
             raise InvalidCueError('this cuesheet has an invalid timestamp')
@@ -86,13 +86,13 @@ class LengthCounter(TLConverter):
         cdda = result[3]
         if cdda == '---':
             cdda = 'CDDA'
-        return self._convert_to_number(result[0]), cdda
+        return self.convert_to_number(result[0]), cdda
 
 
 class Reader(Checker):
     def _detect_file_type(self, name):
         required = 'file'
-        if self._check_dep(required) is None:
+        if self.check_dep(required) is None:
             raise ReqAppError('{} is not installed'.format(required))
         cmd = shlex.split('file -b -i "{}"'.format(name))
         with Popen(cmd, stdout=PIPE, stderr=PIPE) as p:
@@ -115,14 +115,14 @@ class Reader(Checker):
 
 class ContentTool:
     @staticmethod
-    def _get_value(content, pattern):
+    def get_value(content, pattern):
         for line in content:
             box = pattern.match(line)
             if box:
                 return box.group(1).strip('"')
 
     @staticmethod
-    def _get_values(content, pattern):
+    def get_values(content, pattern):
         return [pattern.match(line).group(1).strip('"') for line in content
                 if pattern.match(line)]
 
@@ -200,13 +200,13 @@ class PointsData:
         return store
 
     @staticmethod
-    def _convert_time_line(line):
+    def convert_time_line(line):
         if line:
             parts = line.split(':')
             return '{0}:{1}.{2}'.format(int(parts[0]), parts[1], parts[2])
 
     def _arrange_indices(self, content):
         indices = self._extract_indices(content)
-        return {key: (self._convert_time_line(indices[key][0]),
-                      self._convert_time_line(indices[key][1]))
+        return {key: (self.convert_time_line(indices[key][0]),
+                      self.convert_time_line(indices[key][1]))
                 for key in indices}

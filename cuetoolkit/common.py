@@ -31,21 +31,21 @@ class Cue(MetaData, Extractor):
     def extract(self, source, noreturn=True):
         content = self._get_content(source)
         pats = self._pattern_data()
-        self.art_a = self._get_value(content, pats.art_a)
-        self.album = self._get_value(content, pats.album)
-        self.genre = self._get_value(content, pats.genre)
-        self.d_id = self._get_value(content, pats.d_id)
-        self.year = self._get_value(content, pats.year)
-        self.comm = self._get_value(content, pats.comm)
+        self.art_a = self.get_value(content, pats.art_a)
+        self.album = self.get_value(content, pats.album)
+        self.genre = self.get_value(content, pats.genre)
+        self.d_id = self.get_value(content, pats.d_id)
+        self.year = self.get_value(content, pats.year)
+        self.comm = self.get_value(content, pats.comm)
         self.comment = (self.comm or 'cuetoolkit-' + version) + '/' +\
                        (self.d_id or 'unknown disc')
-        self.title = self._get_values(content, pats.title)
-        self.artist = self._get_values(content, pats.artist)
-        self.track = self._get_values(content, pats.track)
+        self.title = self.get_values(content, pats.title)
+        self.artist = self.get_values(content, pats.artist)
+        self.track = self.get_values(content, pats.track)
         if not self.artist and self.art_a:
             self.artist = [self.art_a] * len(self.track)
-        self.tgenre = self._get_values(content, pats.tgenre) or None
-        self.tdate = self._get_values(content, pats.tdate) or None
+        self.tgenre = self.get_values(content, pats.tgenre) or None
+        self.tdate = self.get_values(content, pats.tdate) or None
         self._validate_metadata()
         if not noreturn:
             return content
@@ -120,7 +120,7 @@ class Couple:
         raise AttributeError('cue_base cannot be set')
 
     @staticmethod
-    def _find_cue(home, name, source):
+    def find_cue(home, name, source):
         cue = [os.path.join(home, item) for item in os.listdir(home)
                if os.path.splitext(item) == (name, '.cue')]
         if not cue:
@@ -130,7 +130,7 @@ class Couple:
         return os.path.realpath(cue[0]), os.path.realpath(source)
 
     @staticmethod
-    def _find_media(home, name, source, medias):
+    def find_media(home, name, source, medias):
         media = [os.path.join(home, item) for item in os.listdir(home)
                  if os.path.splitext(item)[1].lower() in medias and
                  os.path.splitext(item)[0] == name]
@@ -144,9 +144,9 @@ class Couple:
         if ext not in medias and ext != '.cue':
             raise FileError('unsuitable file for this app')
         if ext in medias:
-            return self._find_cue(home, name, source)
+            return self.find_cue(home, name, source)
         elif ext == '.cue':
-            return self._find_media(home, name, source, medias)
+            return self.find_media(home, name, source, medias)
 
     def couple(self, source):
         if not os.path.exists(source):

@@ -15,8 +15,8 @@
 import argparse
 
 from cuetoolkit import version
+from cuetoolkit.common import CuePoints
 from cuetoolkit.exc import show_error
-from cuetoolkit.report import Reporter
 
 
 def parse_args():
@@ -24,23 +24,25 @@ def parse_args():
     args.add_argument(
         '-v', '--version', action='version', version='cuetoolkit-' + version)
     args.add_argument(
-        '-c',
-        action='store_true',
-        dest='hash',
-        default=False,
-        help='count md5 hash of PCM if available')
+        '-g',
+        action='store',
+        dest='gaps',
+        default='append',
+        choices=('append', 'prepend', 'split'),
+        help='control pre-gaps, append, prepend or split them')
     args.add_argument(
         'cue_file',
         action='store',
-        help='the reported cuesheet file name')
+        help='the cuesheet file name')
     return args.parse_args()
 
 
 def main():
     args = parse_args()
-    report = Reporter()
-    report.parse(args.cue_file, args.hash)
-    report.pprint()
+    points = CuePoints()
+    points.extract(args.cue_file)
+    for point in points.sift_points(args.gaps):
+        print(point)
 
 
 if __name__ == '__main__':
