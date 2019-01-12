@@ -11,6 +11,7 @@
 
 from .abstract import Decoder, HashCounter, LengthConverter, LengthCounter
 from .common import Couple
+from .exc import FileError
 
 
 class Reporter(Decoder, HashCounter, LengthCounter, LengthConverter):
@@ -45,11 +46,14 @@ class Reporter(Decoder, HashCounter, LengthCounter, LengthConverter):
             self.cue = CueCDDA()
             self.cue.extract(source)
             self._check_decoder(self.couple.media)
+            self.length, self.cdda = self._count_length(self.couple.media)
+            points = self.cue.sift_points('append')
+            self.durations = self._count_durations(self.length, points)
+            last_index = self.convert_to_number(points[-1])
+            if self.length - last_index < 2:
+                raise FileError('unsuitable media file for this cuesheet')
             if media_hash:
                 self.hash = self.count_hash(self.couple.media)
-            self.length, self.cdda = self._count_length(self.couple.media)
-            self.durations = self._count_durations(
-                self.length, self.cue.sift_points('append'))
         else:
             from .common import Cue
             self.cue = Cue()
