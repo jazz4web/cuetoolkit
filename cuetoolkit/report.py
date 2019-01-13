@@ -85,24 +85,19 @@ class Reporter(Decoder, HashCounter, LengthCounter, LengthConverter):
         captions, values, max_length = self._form_data()
         for (caption, value) in zip(captions, values):
             if value:
-                print('{}{:>{}}'.format(
-                    caption, value,
+                print('{0}{1:>{2}}'.format(
+                    caption,
+                    value,
                     max_length - len(caption) + len(value)))
         mtl = max(map(len, self.cue.title)) + 2
         mal = max(map(len, self.cue.artist)) + 2
-        for step, track in enumerate(self.cue.track):
+        for st, tr in enumerate(self.cue.track):
+            a = mal - len(self.cue.artist[st]) + len(self.cue.title[st])
             if self.durations:
-                duration = self.convert_to_string(self.durations[step])
+                d = self.convert_to_string(self.durations[st])
+                t = mtl - len(self.cue.title[st]) + len(d)
                 print('{0}  {1}{2:>{4}}{3:>{5}}'.format(
-                    track,
-                    self.cue.artist[step],
-                    self.cue.title[step],
-                    duration,
-                    mal-len(self.cue.artist[step])+len(self.cue.title[step]),
-                    mtl-len(self.cue.title[step])+len(duration)))
+                    tr, self.cue.artist[st], self.cue.title[st], d, a, t))
             else:
                 print('{0}  {1}{2:>{3}}'.format(
-                    track,
-                    self.cue.artist[step],
-                    self.cue.title[step],
-                    mal-len(self.cue.artist[step])+len(self.cue.title[step])))
+                    tr, self.cue.artist[st], self.cue.title[st], a))
