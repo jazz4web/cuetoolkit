@@ -34,6 +34,28 @@ class Decoder(Checker):
                 raise ReqAppError('{} is not installed'. format(app))
 
 
+class Encoder(Decoder):
+    def _check_encoder(self, media):
+        apps = {'flac': 'flac',
+                'ogg': 'oggenc',
+                'opus': 'opusenc',
+                'mp3': 'lame'}
+        app = apps.get(media)
+        if not self.check_dep(app):
+            raise ReqAppError('{} is not installed'.format(app))
+
+
+class MediaSplitter:
+    @staticmethod
+    def split_media(points, command):
+        points = '\n'.join(points).encode('utf-8')
+        cmd = shlex.split(command)
+        with Popen(cmd, stdin=PIPE) as p:
+            p.communicate(input=points)
+        if p.returncode:
+            raise RuntimeError('looks like media file is not valid')
+
+
 class HashCounter:
     @staticmethod
     def count_hash(media):
@@ -41,7 +63,7 @@ class HashCounter:
         with Popen(cmd, stdout=PIPE) as p:
             result = p.communicate()
         if p.returncode:
-            raise RuntimeError('media file is not valid')
+            raise RuntimeError('looks like media file is not valid')
         return result[0].decode('utf-8').split()[0]
 
 
@@ -81,7 +103,7 @@ class LengthCounter(TLConverter):
         with Popen(cmd, stdout=PIPE, stderr=PIPE) as p:
             result = p.communicate()
         if p.returncode:
-            raise RuntimeError('media file is not valid')
+            raise RuntimeError('looks like media file is not valid')
         result = result[0].decode('utf-8').split()
         cdda = result[3]
         if cdda == '---':
