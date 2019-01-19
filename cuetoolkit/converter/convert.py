@@ -2,6 +2,7 @@ import json
 
 from ..abstract import Encoder, MediaSplitter, LengthCounter
 from ..common import Couple, CueCDDA
+from ..mutagen.tagger import Tagger
 from ..exc import FileError
 from ..system import options_file
 
@@ -96,3 +97,5 @@ class Converter(MediaSplitter, Encoder, LengthCounter):
         self.cmd = '{0} "{1}"'.format(
             self._gen_cmd(self.media_type, enc_options, self.quiet),
             self.couple.media)
+        self.tagger = Tagger()
+        self.tagger.prepare(self.media_type)
