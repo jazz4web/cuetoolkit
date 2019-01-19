@@ -96,6 +96,11 @@ class TLConverter:
 
 
 class LengthCounter(TLConverter):
+    @staticmethod
+    def convert_to_seconds(time_line):
+        mm, ss, nnn = re.split(r'[:.]', time_line)
+        return int(mm) * 60 + int(ss) + int(nnn) / 1000
+
     def _count_length(self, media):
         if media is None:
             return None, None
@@ -108,7 +113,10 @@ class LengthCounter(TLConverter):
         cdda = result[3]
         if cdda == '---':
             cdda = 'CDDA'
-        return self.convert_to_number(result[0]), cdda
+            return self.convert_to_number(result[0]), cdda
+        else:
+            cdda = 'not CDDA'
+            return self.convert_to_seconds(result[0]), cdda
 
 
 class Reader(Checker):

@@ -76,7 +76,9 @@ class Converter(MediaSplitter, Encoder, LengthCounter):
         length, cdda = self._count_length(self.couple.media)
         last_index = self.convert_to_number(self.cue.sift_points('append')[-1])
         if length - last_index < 2:
-            raise FileError('unsuitable media file for this cuesheet')
+            raise FileError('media file is too short for this cuesheet')
+        if cdda != 'CDDA':
+            raise FileError('only CDDA images may be splitted')
 
     def check_data(self, source, enc_options):
         self.cfg = self.read_cfg(options_file)
