@@ -1,12 +1,12 @@
 import json
 
-from ..abstract import MediaSplitter, Encoder
+from ..abstract import Encoder, MediaSplitter, LengthCounter
 from ..common import Couple, CueCDDA
 from ..exc import FileError
 from ..system import options_file
 
 
-class Converter(MediaSplitter, Encoder):
+class Converter(MediaSplitter, Encoder, LengthCounter):
     def __init__(self, media_type, schema, quiet, prefix='track'):
         self.cfg = None
         self.couple = Couple()
@@ -64,13 +64,19 @@ class Converter(MediaSplitter, Encoder):
 
     def _gen_head(self, quiet):
         if quiet:
-            return 'shnsplit -a {} -q -o '.format(self.prefix)
-        return 'shnsplit -a {} -o '.format(self.prefix)
+            return 'shnsplit -a {0} -q -o '.format(self.prefix)
+        return 'shnsplit -a {0} -o '.format(self.prefix)
 
     def _gen_cmd(self, media_type, enc_options, quiet):
         e, opts, output = self._gen_parts(media_type)
         opts = enc_options or opts
         return '{0}{1}{2}{3}'.format(self._gen_head(quiet), e, opts, output)
+
+    def _validate_image(self):
+        length, cdda = self._count_length(self.couple.media)
+        last_index = self.convert_to_number(self.cue.sift_points('append')[-1])
+        if length - last_index < 2:
+            raise FileError('unsuitable media file for this cuesheet')
 
     def check_data(self, source, enc_options):
         self.cfg = self.read_cfg(options_file)
@@ -82,9 +88,9 @@ class Converter(MediaSplitter, Encoder):
             raise FileError('there is no media file')
         self._check_decoder(self.couple.media)
         self._check_encoder(self.media_type)
-        self.template = '{}*.{}'.format(self.prefix, self.media_type)
+        self.template = '{0}*.{1}'.format(self.prefix, self.media_type)
         self.cue.extract(self.couple.cue)
-        self.cmd = '{} "{}"'.format(
+        self._validate_image()
+        self.cmd = '{0} "{1}"'.format(
             self._gen_cmd(self.media_type, enc_options, self.quiet),
             self.couple.media)
-
