@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+"""
+    cuetoolkit
+    ~~~~~~~~~~
+
+    A bunch of tools for reading cuesheet files, splitting CDDA images
+    and filling tracks metadata.
+
+    :copyright: (c) 2019 by AndreyVM
+    :license: GNU GPLv3
+"""
+
+
+import argparse
+import threading
+
+from cuetoolkit import version
+from cuetoolkit.exc import show_error
+from cuetoolkit.converter.convert import Converter
+
+
+def parse_args():
+    args = argparse.ArgumentParser()
+    args.add_argument(
+        '-v', '--version', action='version', version='cuetoolkit-' + version)
+    args.add_argument(
+        '-g',
+        action='store',
+        dest='gaps',
+        default='append',
+        choices=('append', 'prepend', 'split'),
+        help='contol gaps')
+    args.add_argument(
+        '-m',
+        action='store',
+        dest='media_type',
+        default='flac',
+        choices=('flac', 'ogg', 'opus', 'mp3'),
+        help='the output media type, default is flac')
+    args.add_argument(
+        '-o',
+        action='append', dest='enc_options',
+        help='encoder options')
+    args.add_argument(
+        '-r',
+        action='store_true',
+        dest='rename',
+        default=False,
+        help='rename tracks')
+    args.add_argument(
+        '-q',
+        action='store_true',
+        dest='quiet',
+        default=False,
+        help='show no output')
+    args.add_argument(
+        'cue_file', action='store', help='the converted file name')
+    return args.parse_args()
+
+
+def main():
+    args = parse_args()
+    image = Converter(args.media_type, args.gaps, args.quiet)
+    image.check_data(args.cue_file, args.enc_options)
+    Converter.clean_cwd(image.template)
+    splitter = threading.Thread(
+        target=Converter.split_media,
+        args=(image.cue.sift_points(image.schema), image.cmd))
+    tagger = threading.Thread(
+        target=image.clean,
+        args=(splitter, args.rename))
+    splitter.start()
+    tagger.start()
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as e:
+        show_error(e)

@@ -11,3 +11,4 @@ __pycache__/
 *.opus
 cue2report.py
 cue2points.py
+cdda2tracks.py

@@ -240,3 +240,18 @@ class PointsData:
         return {key: (self.convert_time_line(indices[key][0]),
                       self.convert_time_line(indices[key][1]))
                 for key in indices}
+
+
+class Rename:
+    @staticmethod
+    def rename_file(file_name, step, cue):
+        title = re.sub(r'[\\/|?<>*:]', '~', cue.title[step])
+        artist = re.sub(r'[\\/|?<>*:]', '~', cue.artist[step])
+        extension = os.path.splitext(file_name)[1].lower()
+        new_name = '{0} - {1} - {2}{3}'.format(
+            cue.track[step], artist, title, extension)
+        try:
+            os.rename(file_name, new_name)
+        except OSError:
+            return None
+        return new_name

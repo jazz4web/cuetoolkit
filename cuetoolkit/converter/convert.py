@@ -1,13 +1,16 @@
+import glob
 import json
+import time
 
-from ..abstract import Encoder, MediaSplitter, LengthCounter
+from ..abstract import Encoder, MediaSplitter, LengthCounter, Rename
 from ..common import Couple, CueCDDA
 from ..mutagen.tagger import Tagger
 from ..exc import FileError
 from ..system import options_file
+from .abstract import Cleaner
 
 
-class Converter(MediaSplitter, Encoder, LengthCounter):
+class Converter(MediaSplitter, Encoder, LengthCounter, Cleaner, Rename):
     def __init__(self, media_type, schema, quiet, prefix='track'):
         self.cfg = None
         self.couple = Couple()
@@ -99,3 +102,48 @@ class Converter(MediaSplitter, Encoder, LengthCounter):
             self.couple.media)
         self.tagger = Tagger()
         self.tagger.prepare(self.media_type)
+
+    def _detect_gaps(self):
+        junk = list()
+        if self.schema == 'split':
+            step = 1
+            for key in sorted(self.cue.store):
+                if key == '01':
+                    if self.cue.store[key][1]:
+                        junk.append('{0}{1}.{2}'.format(
+                            self.prefix,
+                            str(step).zfill(2),
+                            self.media_type))
+                        step += 1
+                else:
+                    if self.cue.store[key][0]:
+                        step += 1
+                        junk.append('{0}{1}.{2}'.format(
+                            self.prefix,
+                            str(step).zfill(2),
+                            self.media_type))
+                        step += 1
+                    else:
+                        step += 1
+        return junk
+
+    def clean(self, thread, rename):
+        step = 0
+        files = sorted(glob.glob(self.template))
+        junk = self._detect_gaps()
+        while thread.is_alive():
+            time.sleep(0.1)
+            if junk:
+                self.remove_gaps(junk)
+            if len(files) < len(sorted(glob.glob(self.template))):
+                files = sorted(glob.glob(self.template))
+                if len(files) >= 2:
+                    self.tagger.write_meta(files[-2], step, self.cue)
+                    if rename:
+                        self.rename_file(files[-2], step, self.cue)
+                    files = sorted(glob.glob(self.template))
+                    step += 1
+        if files:
+            self.tagger.write_meta(files[-1], step, self.cue)
+            if rename:
+                self.rename_file(files[-1], step, self.cue)
