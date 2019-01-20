@@ -10,7 +10,7 @@ from ..system import options_file
 from .abstract import Cleaner
 
 
-class Converter(MediaSplitter, Encoder, LengthCounter, Cleaner, Rename):
+class CDDAConverter(MediaSplitter, Encoder, LengthCounter, Cleaner, Rename):
     def __init__(self, media_type, schema, quiet, prefix='track'):
         self.cfg = None
         self.couple = Couple()

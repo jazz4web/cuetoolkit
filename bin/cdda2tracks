@@ -17,7 +17,7 @@ import threading
 
 from cuetoolkit import version
 from cuetoolkit.exc import show_error
-from cuetoolkit.converter.convert import Converter
+from cuetoolkit.converter.convert import CDDAConverter
 
 
 def parse_args():
@@ -61,11 +61,11 @@ def parse_args():
 
 def main():
     args = parse_args()
-    image = Converter(args.media_type, args.gaps, args.quiet)
+    image = CDDAConverter(args.media_type, args.gaps, args.quiet)
     image.check_data(args.cue_file, args.enc_options)
-    Converter.clean_cwd(image.template)
+    CDDAConverter.clean_cwd(image.template)
     splitter = threading.Thread(
-        target=Converter.split_media,
+        target=CDDAConverter.split_media,
         args=(image.cue.sift_points(image.schema), image.cmd))
     tagger = threading.Thread(
         target=image.clean,

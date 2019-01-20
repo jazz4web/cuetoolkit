@@ -15,7 +15,7 @@
 import argparse
 
 from cuetoolkit import version
-from cuetoolkit.common import CuePoints
+from cuetoolkit.common import CDDAPoints, NotCDDAPoints
 from cuetoolkit.exc import show_error
 
 
@@ -31,6 +31,12 @@ def parse_args():
         choices=('append', 'prepend', 'split'),
         help='control pre-gaps, append, prepend or split them')
     args.add_argument(
+        '-n',
+        action='store_true',
+        dest='not_cdda',
+        default=False,
+        help='image type, cdda or not, -n means not cdda')
+    args.add_argument(
         'cue_file',
         action='store',
         help='the cuesheet file name')
@@ -39,7 +45,10 @@ def parse_args():
 
 def main():
     args = parse_args()
-    points = CuePoints()
+    if not args.not_cdda:
+        points = CDDAPoints()
+    else:
+        points = NotCDDAPoints()
     points.extract(args.cue_file)
     for point in points.sift_points(args.gaps):
         print(point)

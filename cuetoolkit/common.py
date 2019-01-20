@@ -52,7 +52,7 @@ class Cue(MetaData, Extractor):
         return None
 
 
-class CuePoints(PointsData, Extractor):
+class CDDAPoints(PointsData, Extractor):
     def __init__(self):
         self.store = None
 
@@ -82,7 +82,16 @@ class CuePoints(PointsData, Extractor):
         return points
 
 
-class CueCDDA(Cue, CuePoints):
+class NotCDDAPoints(CDDAPoints):
+    @staticmethod
+    def convert_time_line(line):
+        if line:
+            parts = line.split(':')
+            nnn = round(int(parts[2]) / 0.075)
+            return '{0}:{1}.{2:<0{3}}'.format(int(parts[0]), parts[1], nnn, 3)
+
+
+class CueCDDA(Cue, CDDAPoints):
     def __init__(self):
         Cue.__init__(self)
         self.store = None
