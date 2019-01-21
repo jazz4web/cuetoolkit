@@ -91,7 +91,7 @@ class NotCDDAPoints(CDDAPoints):
             return '{0}:{1}.{2:<0{3}}'.format(int(parts[0]), parts[1], nnn, 3)
 
 
-class CueCDDA(Cue, CDDAPoints):
+class CDDACue(Cue, CDDAPoints):
     def __init__(self):
         Cue.__init__(self)
         self.store = None
@@ -101,6 +101,10 @@ class CueCDDA(Cue, CDDAPoints):
             raise ValueError('noreturn cannot be True')
         content = Cue.extract(self, source, noreturn=noreturn)
         self.store = self._arrange_indices(content)
+
+
+class NotCDDACue(CDDACue, NotCDDAPoints):
+    pass
 
 
 class Couple:

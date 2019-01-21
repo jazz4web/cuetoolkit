@@ -23,7 +23,7 @@ class Tagger:
         elif obj.tgenre:
             song['genre'] = obj.tgenre[step]
         song['title'] = obj.title[step]
-        song['tracknumber'] = obj.track[step]
+        song['tracknumber'] = str(int(obj.track[step]))
         song['tracktotal'] = str(int(obj.track[-1]))
         if obj.year and not obj.tdate:
             song['date'] = obj.year
@@ -42,7 +42,7 @@ class Tagger:
         elif obj.tgenre:
             song['TCON'] = id3.TCON(encoding=3, text=[obj.tgenre[step]])
         song['TIT2'] = id3.TIT2(encoding=3, text=[obj.title[step]])
-        number = '{0}/{1}'.format(obj.track[step], int(obj.track[-1]))
+        number = '{0}/{1}'.format(int(obj.track[step]), int(obj.track[-1]))
         song['TRCK'] = id3.TRCK(encoding=3, text=[number])
         if obj.year and not obj.tdate:
             song['TDRC'] = id3.TDRC(encoding=3, text=[obj.year])

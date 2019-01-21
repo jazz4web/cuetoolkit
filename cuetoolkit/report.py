@@ -42,8 +42,8 @@ class Reporter(Decoder, HashCounter, LengthCounter, LengthConverter):
     def parse(self, source, media_hash=False):
         self.couple.couple(source)
         if self.couple.media:
-            from .common import CueCDDA
-            self.cue = CueCDDA()
+            from .common import CDDACue
+            self.cue = CDDACue()
             self.cue.extract(source)
             self._check_decoder(self.couple.media)
             self.length, self.cdda = self._count_length(self.couple.media)

@@ -17,7 +17,7 @@ import threading
 
 from cuetoolkit import version
 from cuetoolkit.exc import show_error
-from cuetoolkit.converter.convert import CDDAConverter
+from cuetoolkit.converter.convert import CDDAConverter, NotCDDAConverter
 
 
 def parse_args():
@@ -49,6 +49,12 @@ def parse_args():
         default=False,
         help='rename tracks')
     args.add_argument(
+        '-n',
+        action='store_true',
+        dest='not_cdda',
+        default=False,
+        help='image type, CDDA or not, -n means not CDDA')
+    args.add_argument(
         '-q',
         action='store_true',
         dest='quiet',
@@ -61,9 +67,12 @@ def parse_args():
 
 def main():
     args = parse_args()
-    image = CDDAConverter(args.media_type, args.gaps, args.quiet)
+    if not args.not_cdda:
+        image = CDDAConverter(args.media_type, args.gaps, args.quiet)
+    else:
+        image = NotCDDAConverter(args.media_type, args.gaps, args.quiet)
     image.check_data(args.cue_file, args.enc_options)
-    CDDAConverter.clean_cwd(image.template)
+    image.clean_cwd(image.template)
     splitter = threading.Thread(
         target=CDDAConverter.split_media,
         args=(image.cue.sift_points(image.schema), image.cmd))
