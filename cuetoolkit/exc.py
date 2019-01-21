@@ -22,3 +22,7 @@ class FileError(Exception):
 
 class InvalidCueError(Exception):
     pass
+
+
+class AmountError(Exception):
+    pass

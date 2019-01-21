@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+
+"""
+    cuetoolkit
+    ~~~~~~~~~~
+
+    A bunch of tools for reading cuesheet files, splitting CDDA images
+    and filling tracks metadata.
+
+    :copyright: (c) 2019 by AndreyVM
+    :license: GNU GPLv3
+"""
+
+
+import argparse
+
+from cuetoolkit import version
+from cuetoolkit.exc import show_error
+from cuetoolkit.tagger import TagWriter
+
+
+def parse_args():
+    args = argparse.ArgumentParser()
+    args.add_argument(
+        '-v', '--version', action='version', version='cuetoolkit-' + version)
+    args.add_argument(
+        '-m',
+        action='store',
+        dest='media_type',
+        required=True,
+        choices=('flac', 'ogg', 'opus', 'mp3'),
+        help='targeted tracks media type, required option')
+    args.add_argument(
+        '-r',
+        action='store_true',
+        dest='rename',
+        default=False,
+        help='rename tracks')
+    args.add_argument(
+        '-q',
+        action='store_true',
+        dest='quiet',
+        default=False,
+        help='no output')
+    args.add_argument(
+        'cue_file', action='store', help='the cuesheet file name')
+    return args.parse_args()
+
+
+def main():
+    args = parse_args()
+    album = TagWriter()
+    album.prepare(args.media_type, args.cue_file)
+    album.write_metadata(args.rename, args.quiet)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as e:
+        show_error(e)
