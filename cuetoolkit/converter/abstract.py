@@ -28,8 +28,7 @@ class Converter(MediaSplitter, Encoder, LengthCounter, Rename):
 
     def _gen_parts(self, media_type):
         a_out, b_out = ' - -o %f"', ' - %f"'
-        flac, ogg, opus = '', '-q 4', '--raw-rate 44100'
-        mp3 = '--noreplaygain --lowpass -1 -V 0'
+        flac, ogg, mp3 = '', '-q 4', '--noreplaygain --lowpass -1 -V 0'
         parts = {each: dict() for each in ('flac', 'ogg', 'opus', 'mp3')}
         parts['flac'].setdefault('cust', '"cust ext=flac flac ')
         parts['ogg'].setdefault('cust', '"cust ext=ogg oggenc ')
@@ -47,7 +46,7 @@ class Converter(MediaSplitter, Encoder, LengthCounter, Rename):
             self.cfg.get('ogg').get('enc') or ogg if self.cfg else ogg)
         parts['opus'].setdefault(
             'enc',
-            self.cfg.get('opus').get('enc') or opus if self.cfg else opus)
+            self.cfg.get('opus').get('enc') or flac if self.cfg else flac)
         parts['mp3'].setdefault(
             'enc',
             self.cfg.get('mp3').get('enc') or mp3 if self.cfg else mp3)
