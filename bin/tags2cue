@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+
+"""
+    cuetoolkit
+    ~~~~~~~~~~
+
+    A bunch of tools for reading cuesheet files, splitting CDDA images
+    and filling tracks metadata.
+
+    :copyright: (c) 2019 by AndreyVM
+    :license: GNU GPLv3
+"""
+
+
+import argparse
+import glob
+
+from cuetoolkit import version
+from cuetoolkit.exc import show_error
+from cuetoolkit.mutagen.collect import TagCollector
+
+
+def parse_args():
+    args = argparse.ArgumentParser()
+    args.add_argument(
+        '-v', '--version', action='version', version='cuetoolkit-' + version)
+    args.add_argument(
+        '-a',
+        action='store',
+        dest='album_type',
+        choices=('single', 'various'),
+        default='single',
+        help='album type (single artist / various artists), default is single')
+    args.add_argument(
+        '-e',
+        action='store_true',
+        dest='empty',
+        default=False,
+        help='empty tags are acceptable')
+    args.add_argument(
+        '-m',
+        action='store',
+        dest='media_type',
+        choices=('flac', 'ogg', 'opus', 'mp3'),
+        required=True,
+        help='input media type')
+    args.add_argument(
+        'cue_file', action='store', help='this file will be created')
+    return args.parse_args()
+
+
+def main():
+    args = parse_args()
+    files = sorted(glob.glob('*.{}'.format(args.media_type)))
+    meta = TagCollector(args.media_type, args.album_type, args.empty)
+    meta.prepare(files)
+    meta.create_file(args.cue_file)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as e:
+        show_error(e)

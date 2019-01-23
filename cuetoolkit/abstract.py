@@ -143,6 +143,19 @@ class Reader(Checker):
             return 'this cuesheet has bad encoding or cannot be read'
 
 
+class Writer:
+    @staticmethod
+    def save(content, output):
+        try:
+            with open(output, 'w', encoding='utf-8') as f:
+                for line in content:
+                    print(line, file=f)
+                print('Done!')
+                return True
+        except OSError:
+            return None
+
+
 class ContentTool:
     @staticmethod
     def get_value(content, pattern):
