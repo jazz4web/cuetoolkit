@@ -35,7 +35,7 @@ def parse_args():
         action='store_true',
         dest='not_cdda',
         default=False,
-        help='image type, cdda or not, -n means not cdda')
+        help='image type, CDDA or not, -n means not CDDA')
     args.add_argument(
         'cue_file',
         action='store',

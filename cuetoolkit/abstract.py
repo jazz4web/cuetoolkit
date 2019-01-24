@@ -207,6 +207,15 @@ class MetaData(ContentTool):
             track=re.compile(r'^ +TRACK +(\d+) +(.+)'))
 
 
+class NotCDDAPointsData:
+    @staticmethod
+    def convert_time_line(line):
+        if line:
+            parts = line.split(':')
+            nnn = round(int(parts[2]) / 0.075)
+            return '{0}:{1}.{2:<0{3}}'.format(int(parts[0]), parts[1], nnn, 3)
+
+
 class PointsData:
     def _pattern_indices(self):
         pattern = collections.namedtuple(

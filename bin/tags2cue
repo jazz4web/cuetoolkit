@@ -51,9 +51,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    files = sorted(glob.glob('*.{}'.format(args.media_type)))
     meta = TagCollector(args.media_type, args.album_type, args.empty)
-    meta.prepare(files)
+    meta.prepare(sorted(glob.glob('*.{}'.format(args.media_type))))
     meta.create_file(args.cue_file)
 
 

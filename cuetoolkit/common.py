@@ -1,7 +1,7 @@
 import os
 
 from . import version
-from .abstract import Extractor, MetaData, PointsData
+from .abstract import Extractor, MetaData, NotCDDAPointsData, PointsData
 from .exc import FileError, InvalidCueError
 
 
@@ -82,13 +82,8 @@ class CDDAPoints(PointsData, Extractor):
         return points
 
 
-class NotCDDAPoints(CDDAPoints):
-    @staticmethod
-    def convert_time_line(line):
-        if line:
-            parts = line.split(':')
-            nnn = round(int(parts[2]) / 0.075)
-            return '{0}:{1}.{2:<0{3}}'.format(int(parts[0]), parts[1], nnn, 3)
+class NotCDDAPoints(NotCDDAPointsData, CDDAPoints):
+    pass
 
 
 class CDDACue(Cue, CDDAPoints):
@@ -103,7 +98,7 @@ class CDDACue(Cue, CDDAPoints):
         self.store = self._arrange_indices(content)
 
 
-class NotCDDACue(CDDACue, NotCDDAPoints):
+class NotCDDACue(NotCDDAPointsData, CDDACue):
     pass
 
 
