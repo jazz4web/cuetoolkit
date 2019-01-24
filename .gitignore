@@ -14,3 +14,4 @@ cue2points.py
 cue2tracks.py
 cue2tags.py
 tags2cue.py
+cue2copy.py

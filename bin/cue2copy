@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+
+"""
+    cuetoolkit
+    ~~~~~~~~~~
+
+    A bunch of tools for reading cuesheet files, splitting CDDA images
+    and filling tracks metadata.
+
+    :copyright: (c) 2019 by AndreyVM
+    :license: GNU GPLv3
+"""
+
+
+import argparse
+
+from cuetoolkit import version
+from cuetoolkit.copy import CopyCue
+from cuetoolkit.exc import show_error
+
+
+def parse_args():
+    args = argparse.ArgumentParser()
+    args.add_argument(
+        '-v', '--version', action='version', version='cuetoolkit-' + version)
+    args.add_argument(
+        '-t',
+        action='store',
+        dest='translate',
+        default=None,
+        choices=('ru',),
+        help='convert to transliteration')
+    args.add_argument(
+        '-o',
+        action='store',
+        dest='output',
+        default='same',
+        help='the output file name')
+    args.add_argument(
+        'cue_file', action='store', help='the file being copied')
+    return args.parse_args()
+
+
+def main():
+    args = parse_args()
+    cue = CopyCue(args.cue_file, args.translate)
+    cue.prepare()
+    cue.copy(args.output)
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except Exception as e:
+        show_error(e)
