@@ -3,22 +3,24 @@ import json
 import os
 import time
 
-from ..exc import FileError, show_error
 from ..abstract import MediaSplitter, Encoder, LengthCounter, Rename
+from ..common import Couple
+from ..mutagen.tagger import Tagger
+from ..exc import FileError, show_error
 from ..system import options_file
 
 
 class Converter(MediaSplitter, Encoder, LengthCounter, Rename):
     def __init__(self, media_type, schema, quiet, prefix='track'):
-        self.cfg = None
-        self.couple = None
         self.prefix = prefix
         self.media_type = media_type
         self.schema = schema
         self.quiet = quiet
+        self.tagger = Tagger()
+        self.couple = Couple()
+        self.cfg = None
         self.template = None
         self.cue = None
-        self.tagger = None
         self.cmd = None
 
     def _solve_options(self, enc_options):
@@ -109,6 +111,9 @@ class Converter(MediaSplitter, Encoder, LengthCounter, Rename):
             if rename:
                 self.rename_file(files[-1], step, self.cue)
 
+    def _validate_image(self):
+        pass
+
     def check_data(self, source, enc_options):
         self.cfg = self.read_cfg(options_file)
         enc_options = self._solve_options(enc_options)
@@ -121,6 +126,7 @@ class Converter(MediaSplitter, Encoder, LengthCounter, Rename):
         self._check_encoder(self.media_type)
         self.template = '{0}*.{1}'.format(self.prefix, self.media_type)
         self.cue.extract(self.couple.cue)
+        self._validate_image()
         self.cmd = '{0} "{1}"'.format(
             self._gen_cmd(self.media_type, enc_options, self.quiet),
             self.couple.media)

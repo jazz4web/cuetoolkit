@@ -64,7 +64,7 @@ def parse_args():
         'cue_file', action='store', help='the converted file name')
     return args.parse_args()
 
-
+#here is the deal
 def main():
     args = parse_args()
     if not args.not_cdda:
@@ -74,8 +74,8 @@ def main():
     image.check_data(args.cue_file, args.enc_options)
     image.clean_cwd(image.template)
     splitter = threading.Thread(
-        target=CDDAConverter.split_media,
-        args=(image.cue.sift_points(image.schema), image.cmd))
+        target=image.split_media,
+        args=(image.cmd, image.cue.sift_points(image.schema)))
     tagger = threading.Thread(
         target=image.clean,
         args=(splitter, args.rename))

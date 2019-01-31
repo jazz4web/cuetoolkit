@@ -1,3 +1,14 @@
+"""
+    cuetoolkit.common
+    ~~~~~~~~~~~~~~~~~
+
+    These classes are being used by three different tools:
+    - cuetoolkit.converter;
+    - cuetoolkit.tagger;
+    - cuetoolkit.report
+"""
+
+
 import os
 
 from . import version
@@ -6,6 +17,10 @@ from .exc import FileError, InvalidCueError
 
 
 class Cue(MetaData, Extractor):
+    """
+    This is a cuesheet extractor, the main target for this class is cuesheet
+    metadata.
+    """
     def __init__(self):
         self.art_a = None
         self.album = None
@@ -29,6 +44,12 @@ class Cue(MetaData, Extractor):
             raise InvalidCueError('this cuesheet is not valid')
 
     def extract(self, source, noreturn=True):
+        """
+        Extract data from 'source'.
+        :param source: cuesheet file name
+        :param noreturn: True or False
+        :return: cuesheet content or None
+        """
         content = self._get_content(source)
         pats = self._pattern_data()
         self.art_a = self.get_value(content, pats.art_a)
@@ -53,14 +74,28 @@ class Cue(MetaData, Extractor):
 
 
 class CDDAPoints(PointsData, Extractor):
+    """
+    This is a cuesheet extractor, the main target for this class is cuesheet
+    data containing indices. Only CDDA cuesheet.
+    """
     def __init__(self):
         self.store = None
 
     def extract(self, source):
+        """
+        Extract data from 'source'
+        :param source: cuesheet file name
+        :return: None
+        """
         content = self._get_content(source)
         self.store = self._arrange_indices(content)
 
     def sift_points(self, schema):
+        """
+        Sift points in accordance with 'schema'
+        :param schema: 'append', 'prepend' or 'split'
+        :return: list containing breakpoints for shntool
+        """
         if self.store is None:
             raise RuntimeError('source is not extracted yet')
         if schema not in ('append', 'prepend', 'split'):
@@ -83,15 +118,28 @@ class CDDAPoints(PointsData, Extractor):
 
 
 class NotCDDAPoints(NotCDDAPointsData, CDDAPoints):
+    """
+    This is a cuesheet extractor, the main target for this class is cuesheet
+    data containing indices. Only cuesheet that are not CDDA.
+    """
     pass
 
 
 class CDDACue(Cue, CDDAPoints):
+    """
+    This is a CDDA cuesheet extractor, it extracts all data from cuesheet.
+    """
     def __init__(self):
         Cue.__init__(self)
         self.store = None
 
     def extract(self, source, noreturn=False):
+        """
+        Extract data from 'source'.
+        :param source: cuesheet file name
+        :param noreturn: always False
+        :return: None
+        """
         if noreturn:
             raise ValueError('noreturn cannot be True')
         content = Cue.extract(self, source, noreturn=noreturn)
@@ -99,10 +147,19 @@ class CDDACue(Cue, CDDAPoints):
 
 
 class NotCDDACue(NotCDDAPointsData, CDDACue):
+    """
+    This is a cuesheet extractor for cuesheet that is not CDDA, it extracts
+    all data from cuesheet.
+    """
     pass
 
 
 class Couple:
+    """
+    Define the couple for a source file. If the source file is a cuesheet, the
+    couple is a media file with the same name and a valid extension (one of
+    these: '.ape', '.flac', '.wav', '.wv'), or vice versa.
+    """
     def __init__(self):
         self.cue = None
         self.media = None
@@ -157,6 +214,11 @@ class Couple:
             return self.find_media(home, name, source, medias)
 
     def couple(self, source):
+        """
+        Find a couple for 'source' and save its realpath.
+        :param source: string
+        :return: None
+        """
         if not os.path.exists(source):
             raise FileNotFoundError('"{}" does not exist'.format(source))
         name, ext = os.path.splitext(os.path.basename(source))

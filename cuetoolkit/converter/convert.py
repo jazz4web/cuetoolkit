@@ -1,5 +1,4 @@
-from ..common import Couple, CDDACue, NotCDDACue
-from ..mutagen.tagger import Tagger
+from ..common import CDDACue, NotCDDACue
 from ..exc import FileError
 from .abstract import Converter
 
@@ -7,8 +6,6 @@ from .abstract import Converter
 class CDDAConverter(Converter):
     def __init__(self, media_type, schema, quiet, prefix='track'):
         Converter.__init__(self, media_type, schema, quiet, prefix)
-        self.couple = Couple()
-        self.tagger = Tagger()
         self.cue = CDDACue()
 
     def _validate_image(self):
@@ -20,16 +17,10 @@ class CDDAConverter(Converter):
             raise FileError(
                 'only CDDA images may be splitted without the -n option')
 
-    def check_data(self, source, enc_options):
-        Converter.check_data(self, source, enc_options)
-        self._validate_image()
 
-
-class NotCDDAConverter(CDDAConverter):
+class NotCDDAConverter(Converter):
     def __init__(self, media_type, schema, quiet, prefix='track'):
         Converter.__init__(self, media_type, schema, quiet, prefix)
-        self.couple = Couple()
-        self.tagger = Tagger()
         self.cue = NotCDDACue()
 
     def _validate_image(self):
