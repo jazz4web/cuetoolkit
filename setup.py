@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 from cuetoolkit import version
 
-DESC = 'This is a bunch of tools for reading cuesheet files, splitting CDDA \
-images and filling tracks metadata'
+DESC = 'This is a bunch of tools for reading cuesheet files, splitting images \
+to tracks and filling tracks metadata'
 
 setup(
     name='cuetoolkit',

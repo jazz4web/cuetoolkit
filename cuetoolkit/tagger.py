@@ -1,3 +1,13 @@
+"""
+    cuetoolkit.tagger
+    ~~~~~~~~~~~~~~~~~
+
+    Write cuesheet metadata to a group of files of given media type.
+    The only condition must be guaranteed: the amount of media files
+    in CWD must be equal to amount of tracks in cuesheet.
+"""
+
+
 import glob
 
 from .abstract import Rename
@@ -7,6 +17,9 @@ from .mutagen.tagger import Tagger
 
 
 class TagWriter(Rename):
+    """
+    This can write cuesheet metadata to a group of media files - tracks.
+    """
     def __init__(self):
         self.cue = Cue()
         self.tagger = Tagger()
@@ -14,6 +27,12 @@ class TagWriter(Rename):
         self.files = None
 
     def prepare(self, media_type, source):
+        """
+        Prepare data.
+        :param media_type: one of these: 'flac', 'ogg', 'opus' or 'mp3'
+        :param source: cuesheet file name
+        :return: None
+        """
         self.cue.extract(source)
         self.tagger.prepare(media_type)
         self.couple.couple(source)
@@ -26,6 +45,12 @@ class TagWriter(Rename):
                 .format(len(self.cue.track), len(self.files)))
 
     def write_metadata(self, rename, quiet):
+        """
+        Write cuesheet metadata to a group of tracks.
+        :param rename: True or False
+        :param quiet: True or False
+        :return: None
+        """
         block = max(len(name) for name in self.files) + 2
         for step, item in enumerate(self.files):
             self.tagger.write_meta(item, step, self.cue)

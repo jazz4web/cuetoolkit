@@ -1,3 +1,13 @@
+"""
+    cuetoolkit.converter.abstract
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Converter is the abstract class, you don't want to create its instances.
+    The target classes for use are located in cuetoolkit.converter.convert
+    module.
+"""
+
+
 import glob
 import json
 import os
@@ -11,6 +21,11 @@ from ..system import options_file
 
 
 class Converter(MediaSplitter, Encoder, LengthCounter, Rename):
+    """
+    This is an abstract class, you do not want to create instances of this
+    class because they will be able to do almost nothing. Nevertheless,
+    I need this class as a super class to create other classes in cuetoolkit.
+    """
     def __init__(self, media_type, schema, quiet, prefix='track'):
         self.prefix = prefix
         self.media_type = media_type

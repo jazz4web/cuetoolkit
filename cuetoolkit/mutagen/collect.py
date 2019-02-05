@@ -1,3 +1,12 @@
+"""
+    cuetoolkit.mutagen.collect
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Its tools can be used to collect metadata from tracks
+    of a given format and create specific cuesheet.
+"""
+
+
 from mutagen import flac, id3, mp3, oggopus, oggvorbis, MutagenError
 
 from .. import version
@@ -6,7 +15,16 @@ from ..exc import FileError
 
 
 class TagCollector(Writer):
+    """
+    This can read metadata from files of given media type and create with
+    this data a cuesheet file.
+    """
     def __init__(self, media_type, album_type, empty):
+        """
+        :param media_type: one of these: 'flac', 'ogg', 'opus' or 'mp3'
+        :param album_type: 'single' or 'various'
+        :param empty: True of False
+        """
         self.media_type = media_type
         self.album_type = album_type
         self.empty = empty
@@ -132,6 +150,11 @@ class TagCollector(Writer):
         return data
 
     def prepare(self, files):
+        """
+        Get metadata from media files and prepare to create cuesheet.
+        :param files: list of file names
+        :return: None
+        """
         if self.media_type == 'mp3':
             if not self._check_id3version(files) and not self.empty:
                 raise FileError(
@@ -143,6 +166,11 @@ class TagCollector(Writer):
         self.ready = True
 
     def create_file(self, target):
+        """
+        Create a cuesheet file.
+        :param target: target file name
+        :return: None
+        """
         if self.ready:
             if self.empty:
                 if self.save(self.cue_sheet, target) is None:

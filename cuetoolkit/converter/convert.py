@@ -1,3 +1,12 @@
+"""
+    cuetoolkit.converter.convert
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    CDDAConverter can split only CDDA images to tracks.
+    NotCDDAConverter can split only images which are not CDDA.
+"""
+
+
 from ..common import CDDACue, NotCDDACue
 from ..exc import FileError
 from .abstract import Converter

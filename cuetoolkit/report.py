@@ -40,6 +40,12 @@ class Reporter(Decoder, HashCounter, LengthCounter, LengthConverter):
         return None
 
     def parse(self, source, media_hash=False):
+        """
+        Parse cuesheet data before printing.
+        :param source: cuesheet file name
+        :param media_hash: True or False
+        :return: None
+        """
         self.couple.couple(source)
         if self.couple.media:
             from .common import CDDACue
@@ -80,6 +86,10 @@ class Reporter(Decoder, HashCounter, LengthCounter, LengthConverter):
         return captions, values, max(map(len, captions)) + 2
 
     def pprint(self):
+        """
+        Print the report on the screen.
+        :return: None
+        """
         if self.cue is None:
             raise RuntimeError('source cuesheet is not parsed yet')
         captions, values, max_length = self._form_data()

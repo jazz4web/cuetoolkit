@@ -64,7 +64,7 @@ def parse_args():
         'cue_file', action='store', help='the converted file name')
     return args.parse_args()
 
-#here is the deal
+
 def main():
     args = parse_args()
     if not args.not_cdda:
