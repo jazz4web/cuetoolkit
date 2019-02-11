@@ -394,8 +394,9 @@ class PointsData:
     def _extract_indices(self, content):
         store, bounds, pats = dict(), list(), self._pattern_indices()
         for line in content:
-            if pats.track.match(line):
-                key = pats.track.match(line).group(1)
+            track = pats.track.match(line)
+            if track:
+                key = track.group(1)
                 store[key] = [None, None]
                 bounds.append(content.index(line))
         for step, item in enumerate(sorted(store)):
