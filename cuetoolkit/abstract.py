@@ -382,17 +382,29 @@ class PointsData:
             if key != '01' and not store[key][1]:
                 raise InvalidCueError('bad indices for track {}'.format(key))
 
+    @staticmethod
+    def match_indices(item, line, pats, store):
+        index0 = pats.index0.match(line)
+        index1 = pats.index1.match(line)
+        if index0:
+            store[item][0] = index0.group(1)
+        if index1:
+            store[item][1] = index1.group(1)
+
     def _extract_indices(self, content):
-        store = dict()
-        pats = self._pattern_indices()
+        store, bounds, pats = dict(), list(), self._pattern_indices()
         for line in content:
             if pats.track.match(line):
                 key = pats.track.match(line).group(1)
                 store[key] = [None, None]
-            elif pats.index0.match(line):
-                store[key][0] = pats.index0.match(line).group(1)
-            elif pats.index1.match(line):
-                store[key][1] = pats.index1.match(line).group(1)
+                bounds.append(content.index(line))
+        for step, item in enumerate(sorted(store)):
+            if step < len(store) - 1:
+                for line in content[bounds[step]:bounds[step + 1]]:
+                    self.match_indices(item, line, pats, store)
+            else:
+                for line in content[bounds[step]:]:
+                    self.match_indices(item, line, pats, store)
         self._validate_indices(store)
         if store['01'][0] == '00:00:00':
             store['01'][0] = None

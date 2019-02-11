@@ -25,7 +25,7 @@ class CopyCue(Reader, Writer):
         :param name: cuesheet file name
         :param lang: 'ru'
         """
-        choices = {'ru': rus,}
+        choices = {'ru': rus, }
         self.source = name
         self.trans = choices.get(lang)
         self.content = None
