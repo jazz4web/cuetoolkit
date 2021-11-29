@@ -3,7 +3,7 @@ and filling tracks metadata.
 
 *Cuetoolkit* is free, anybody can use its code in accordance with GNU GPL.v3
 and with absolutely NO WARRANTY. For questions, offers and anything else here is
-my address: newbie@auriz.ru.
+my address: webmaster@auriz.ru.
 
 *Cuetoolkit* was written and tested on Debian and completely compatible with its
 stretch or buster branches. However, *cuetoolkit* can be used whit any other
@@ -23,6 +23,6 @@ version of Linux.
 Every executable script in *cuetoolkit* requires ***file*** to be installed in
 your system.
 
-More information about these tools can be found on my [Internet site](http://auriz.ru/bLR8wUGJ).
+More information about these tools can be found on my [Internet site](https://codej.ru/3dR8KiCR).
 Be aware by the way, the supplementary information is written with Russian
 language - my favorite one, and currently not completely ready. :)
