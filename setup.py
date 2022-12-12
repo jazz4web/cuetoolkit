@@ -19,7 +19,7 @@ setup(
              'bin/tags2cue',
              'bin/cue2copy'],
     author='AndreyVM',
-    author_email='newbie@auriz.ru',
+    author_email='webmaster@codej.ru',
     description=DESC,
     license='GNU GPLv3',
     keywords='cue cdda flac image tracks vorbis opus mp3',
